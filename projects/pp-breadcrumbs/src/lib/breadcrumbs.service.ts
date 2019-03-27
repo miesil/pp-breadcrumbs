@@ -3,7 +3,7 @@ import { ActivatedRoute, ActivatedRouteSnapshot, NavigationEnd, Router } from '@
 import { Observable, BehaviorSubject, of, concat, from } from 'rxjs';
 
 import { PpBreadcrumbsResolver } from './breadcrumbs.resolver';
-import { filter, mergeMap, distinct, toArray, first } from 'rxjs/operators';
+import {filter, mergeMap, distinct, toArray, first, tap} from 'rxjs/operators';
 import { Breadcrumb } from './breadcrumb';
 
 @Injectable({
@@ -15,6 +15,7 @@ export class PpBreadcrumbsService {
 
   private breadcrumbs = new BehaviorSubject<Breadcrumb[]>([]);
   private defaultResolver = new PpBreadcrumbsResolver();
+  private breadcrumbsSource: Breadcrumb[] = [];
 
   get crumbs$(): Observable<Breadcrumb[]> {
     return this.breadcrumbs;
@@ -27,6 +28,7 @@ export class PpBreadcrumbsService {
           mergeMap(breadcrumbs => breadcrumbs),
           distinct(breadcrumb => breadcrumb.text),
           toArray(),
+          tap(breadcrumbs => this.breadcrumbsSource = breadcrumbs),
           mergeMap(breadcrumbs => {
             return this.postProcess ? this.wrapIntoObservable(this.postProcess(breadcrumbs)).pipe(first()) : of(breadcrumbs);
           })
@@ -35,6 +37,13 @@ export class PpBreadcrumbsService {
           this.breadcrumbs.next(breadcrumbs);
         });
     });
+  }
+
+  public refreshBreadcrumbs() {
+    (this.postProcess ? this.wrapIntoObservable(this.postProcess(this.breadcrumbsSource)).pipe(first()) : of(this.breadcrumbsSource))
+      .subscribe(breadcrumbs => {
+        this.breadcrumbs.next(breadcrumbs);
+      });
   }
 
   private resolveCrumbs(route: ActivatedRouteSnapshot): Observable<Breadcrumb[]> {
