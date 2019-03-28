@@ -114,6 +114,7 @@ Renders the `Breadcrumb[]` provided by the `PpBreadcrumbsService`. The HTML outp
 | --- | --- |
 | crumbs$: Observable<Breadcrumb[]> | Observable stream of `Breadcrumb[]`, which is updated after each route change |
 | postProcess: (crumbs: Breadcrumb[]) => Promise<Breadcrumb[]> &#124; Observable<Breadcrumb[]> &#124; Breadcrumb[] | Callback function, which allows to modify the fully created breadcrumbs |
+| refreshBreadcrumbs: () => void | Function to refresh breadcrumbs. postProcess() is applied to last version of breadcrumbs(before postProcess) |
 
 #### PpBreadcrumbsResolver
 
