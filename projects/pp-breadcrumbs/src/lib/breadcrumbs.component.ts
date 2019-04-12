@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, EventEmitter, OnDestroy, OnInit, Output} from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Breadcrumb } from './breadcrumb';
 import { PpBreadcrumbsService } from './breadcrumbs.service';
@@ -12,6 +12,9 @@ export class PpBreadcrumbsComponent implements OnInit, OnDestroy {
   crumbs: Breadcrumb[];
   subscriptions: Subscription[] = [];
 
+  @Output()
+  onNavigate = new EventEmitter<any>();
+
   constructor(public service: PpBreadcrumbsService) {}
 
   public ngOnInit(): void {
@@ -24,10 +27,11 @@ export class PpBreadcrumbsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(x => x.unsubscribe());
-    localStorage.removeItem('fromBreadCrumb');
+    this.onNavigate.complete();
+    this.onNavigate = undefined;
   }
 
   click() {
-    localStorage.setItem('fromBreadCrumb', 'true');
+    this.onNavigate.emit({});
   }
 }
