@@ -24,5 +24,10 @@ export class PpBreadcrumbsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(x => x.unsubscribe());
+    localStorage.removeItem('fromBreadCrumb');
+  }
+
+  click() {
+    localStorage.setItem('fromBreadCrumb', 'true');
   }
 }
